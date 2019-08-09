@@ -18,6 +18,10 @@ from flask.logging import default_handler
 FMT_ACCESS_LOG = '%(remoteAddr)s - %(user)s [%(timeRequestReceived)s] "%(method)s %(path)s %(serverProtocol)s" %(statusCode)s %(message)s'
 FMT_ACCESS_LOG_SEC = FMT_ACCESS_LOG + '%(timestamp).3f second(s)'
 
+_monthname = [None,
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 
 class KeyFilter(Filter):
     """
@@ -34,7 +38,11 @@ def key_request_id():
     
     -requestId with value X-Request-ID of request
     """
-    return {'requestId' : request.environ.get('X-Request-ID', '-')}
+    try:
+        res = {'requestId' : request.environ.get('X-Request-ID', '-')}
+    except:
+        res = {'requestId' : ''}
+    return res
 
 class RequestIdFilter(KeyFilter):
     """
@@ -70,29 +78,55 @@ def keys_request():
     - requestUri from request
     - serverProtocol from request
     """
-    return {
-        'secretKey' : current_app.config.get('SECRET_KEY',''),
-        'serverName' : current_app.config.get('SERVER_NAME',''),
-        'serverPort' : current_app.config.get('SERVER_PORT',''),
-        'cookieName' : current_app.config.get('SESSION_COOKIE_NAME',''),
-        'cookieDomain' : current_app.config.get('SESSION_COOKIE_DOMAIN',''),
-        'cookiePath' : current_app.config.get('SESSION_COOKIE_PATH',''),
-        'args' : ','.join(["%s:%s" % (arg, request.args[arg]) for arg in request.args]),
-        'path' : request.path,
-        'method' : request.method,
-        'remoteAddr' : request.remote_addr,
-        'url' : request.url,
-        'user' : getattr(request, 'user','-'),
-        'rule' : getattr(request.url_rule, 'rule',''),
-        'endpoint' : getattr(request, 'endpoint',''),
-        'scheme' : request.scheme,
-        'fullPath' : request.full_path,
-        'pathInfo' : request.environ.get('PATH_INFO',''),
-        'httpHost' : request.environ.get('HTTP_HOST',''),
-        'queryString' : request.environ.get('QUERY_STRING',''),
-        'requestUri' : request.environ.get('REQUEST_URI',''),
-        'serverProtocol' : request.environ.get('SERVER_PROTOCOL',''),
-    }
+    try:
+        res = {
+            'secretKey' : current_app.config.get('SECRET_KEY',''),
+            'serverName' : current_app.config.get('SERVER_NAME',''),
+            'serverPort' : current_app.config.get('SERVER_PORT',''),
+            'cookieName' : current_app.config.get('SESSION_COOKIE_NAME',''),
+            'cookieDomain' : current_app.config.get('SESSION_COOKIE_DOMAIN',''),
+            'cookiePath' : current_app.config.get('SESSION_COOKIE_PATH',''),
+            'args' : ','.join(["%s:%s" % (arg, request.args[arg]) for arg in request.args]),
+            'path' : request.path,
+            'method' : request.method,
+            'remoteAddr' : request.remote_addr,
+            'url' : request.url,
+            'user' : getattr(request, 'user','-'),
+            'rule' : getattr(request.url_rule, 'rule',''),
+            'endpoint' : getattr(request, 'endpoint',''),
+            'scheme' : request.scheme,
+            'fullPath' : request.full_path,
+            'pathInfo' : request.environ.get('PATH_INFO',''),
+            'httpHost' : request.environ.get('HTTP_HOST',''),
+            'queryString' : request.environ.get('QUERY_STRING',''),
+            'requestUri' : request.environ.get('REQUEST_URI',''),
+            'serverProtocol' : request.environ.get('SERVER_PROTOCOL',''),
+        }
+    except:
+        res  = {
+            'secretKey' : '',
+            'serverName' : '',
+            'serverPort' : '',
+            'cookieName' : '',
+            'cookieDomain' : '',
+            'cookiePath' : '',
+            'args' : '',
+            'path' : '',
+            'method' : '',
+            'remoteAddr' : '',
+            'url' : '',
+            'user' : '',
+            'rule' : '',
+            'endpoint' : '',
+            'scheme' : '',
+            'fullPath' : '',
+            'pathInfo' : '',
+            'httpHost' : '',
+            'queryString' : '',
+            'requestUri' : '',
+            'serverProtocol' : '',
+        }
+    return res
 
 class RequestFilter(KeyFilter):
     """
@@ -113,13 +147,24 @@ def key_timestamp():
     - statusCode from response
     - status from response
     """
-    return {
+    try:
+        res = {
             'timestamp' : not getattr(request, '_timestamp_stop', None) and -1 or request._timestamp_stop - request._timestamp_start ,
             'timeRequestReceived' : request._time_received, 
             'contentLength' : request._response.get('Content-Length',''),
             'statusCode' : request._response.get('status_code',' '*3),
             'status' : request._response.get('status','')
-            }
+        }
+    except:
+        year, month, day, hh, mm, ss = localtime(time())[:6]
+        res = {
+            'timestamp' : -1 ,
+            'timeRequestReceived' : "%02d/%3s/%04d %02d:%02d:%02d" % (day, _monthname[month], year, hh, mm, ss), 
+            'contentLength' : '',
+            'statusCode' : ' ',
+            'status' : ''
+        }
+    return res
 
 class RequestTimeStampFilter(KeyFilter):
     """
@@ -231,15 +276,11 @@ class EasyLog(object):
 
     def start_timestamp(self):
         def start_timestamp():
-            monthname = [None,
-                        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
             request._timestamp_start = time()
             request._timestamp_stop = None
-            year, month, day, hh, mm, ss, x, y, z = localtime(request._timestamp_start)
+            year, month, day, hh, mm, ss = localtime(request._timestamp_start)[:6]
             request._time_received = "%02d/%3s/%04d %02d:%02d:%02d" % (
-                    day, monthname[month], year, hh, mm, ss)
+                    day, _monthname[month], year, hh, mm, ss)
             request._response = {}
             if self._beforeLog:
                 self.app.logger.log(self._beforeLevel, self._beforeMsg)
