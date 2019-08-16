@@ -38,7 +38,7 @@ class Singleton(type):
 import six
 
 @six.add_metaclass(Singleton)
-class SpecificLevelLog(dict):
+class _SpecificLevelLog(dict):
     def __init__(self):
         dict.__init__(self)
     
@@ -49,14 +49,16 @@ class SpecificLevelLog(dict):
             try:
                 return current_app.logger.getEffectiveLevel()
             except:
-                return NOTSET
-    
+                raise ValueError('not context current_app')
+
+SpecificLevelLog = _SpecificLevelLog()
+
 def _add_log(level, func, endpoint=None):
     if not isinstance(level, int):
         level = DEBUG
     if not endpoint:
         endpoint = _endpoint_from_view_func(func)
-    SpecificLevelLog()[endpoint] = level
+    SpecificLevelLog[endpoint] = level
 
 def log(level=DEBUG, endpoint=None):
     def _decorator(func):
@@ -268,6 +270,7 @@ class EasyLog(object):
             formatter = Formatter(fmtaccesslog)
             fileH.setFormatter(formatter)
             getLogger('access.log').addHandler(fileH)
+        self._add_specific_log()
 
     def init_app(self, app):
         self.app = app
@@ -342,3 +345,17 @@ class EasyLog(object):
                 self.app.logger.log(self._afterLevel, self._afterMsg)
             return response
         return stop_timestamp
+
+    def _add_specific_log(self):
+        self.app.logger.isEnabledFor = self._specific_isEnabledFor()
+ 
+    def _specific_isEnabledFor(self):
+        def isEnabledFor(level):
+            try:
+                if level >= SpecificLevelLog[request.endpoint]:
+                    return True
+                return False
+            except:
+                return Logger.isEnabledFor(self.app.logger, level)  
+        return isEnabledFor
+    

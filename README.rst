@@ -25,11 +25,15 @@ Usage
 ::
 
     from flask import Flask, request, current_app
-    from logging import DEBUG
+    from logging import DEBUG, INFO
+    from flask_easylog import EasyLog, log 
+
 
     app = Flask(__name__)
     app.secret_key = 'super secret string'
-    app.logger.setLevel(DEBUG)
+    app.logger.setLevel(INFO)
+    
+    EasyLog(app)
 
     @app.route("/")
     def hello():
@@ -38,6 +42,16 @@ Usage
         current_app.logger.info("info from hello")
         current_app.logger.debug("debug from hello")
         return "Hello World!"
+    
+    @app.route("/two")
+    @log(DEBUG)
+    def two():
+        current_app.logger.critical("critical from hello")
+        current_app.logger.error("error from hello")
+        current_app.logger.info("info from hello")
+        current_app.logger.debug("debug from hello")
+        return "Hello World!"
+
 
 
     if __name__ == "__main__":
