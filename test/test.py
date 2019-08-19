@@ -1,7 +1,7 @@
 from flask import Flask, request, current_app
 from logging import DEBUG, INFO, ERROR
 
-from flask_easylog import EasyLog, FMT_ACCESS_LOG, log, SpecificLevelLog 
+from flask_easylog import EasyLog, FMT_ACCESS_LOG, log, SpecificLevelLog, Api 
 
 app = Flask(__name__)
 app.secret_key = 'super secret string'
@@ -13,7 +13,7 @@ EasyLog(app,
     fmt = FMT_ACCESS_LOG,
     afterlog = True,
     beforelog = True)
-
+app.register_blueprint(Api(url_prefix='/api'))
 app.logger.info("after add EasyLog")
 
 @app.route("/")

@@ -11,11 +11,11 @@ plugin for flask_easylog
 from uuid import uuid4
 from logging import Filter, Formatter, Logger, getLogger, DEBUG, CRITICAL, INFO, NOTSET, FileHandler, StreamHandler
 from time import time, gmtime, asctime, strftime, localtime
-from functools import partial, wraps
 
 from flask import current_app, request, Flask
 from flask.logging import default_handler
-from flask.helpers import _endpoint_from_view_func
+
+from .util import SpecificLevelLog
 
 FMT_ACCESS_LOG = '%(remoteAddr)s - %(user)s [%(timeRequestReceived)s] "%(method)s %(path)s %(serverProtocol)s" %(statusCode)s %(message)s'
 FMT_ACCESS_LOG_SEC = FMT_ACCESS_LOG + '%(timestamp).3f second(s)'
@@ -23,51 +23,6 @@ FMT_ACCESS_LOG_SEC = FMT_ACCESS_LOG + '%(timestamp).3f second(s)'
 _monthname = [None,
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-class Singleton(type):
-    _instances = {}
-    
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-# create a singleton for python3
-# for compatible python2, I use module **six**
-
-import six
-
-@six.add_metaclass(Singleton)
-class _SpecificLevelLog(dict):
-    def __init__(self):
-        dict.__init__(self)
-    
-    def __getitem__(self, name):
-        try:
-            return dict.__getitem__(self, name)
-        except:
-            try:
-                return current_app.logger.getEffectiveLevel()
-            except:
-                raise ValueError('not context current_app')
-
-SpecificLevelLog = _SpecificLevelLog()
-
-def _add_log(level, func, endpoint=None):
-    if not isinstance(level, int):
-        level = DEBUG
-    if not endpoint:
-        endpoint = _endpoint_from_view_func(func)
-    SpecificLevelLog[endpoint] = level
-
-def log(level=DEBUG, endpoint=None):
-    def _decorator(func):
-        _add_log(level, func, endpoint)
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-        return wrapper
-    return _decorator(level) if callable(level) else _decorator
 
 class KeyFilter(Filter):
     """

@@ -9,4 +9,6 @@ flask_easylog is a extension for flask application
 
 """
 
-from .plugin import SpecificLevelLog, EasyLog, log, FMT_ACCESS_LOG, FMT_ACCESS_LOG_SEC   
+from .util import SpecificLevelLog, log
+from .plugin import EasyLog, FMT_ACCESS_LOG, FMT_ACCESS_LOG_SEC
+from .api import Api 
