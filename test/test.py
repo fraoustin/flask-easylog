@@ -9,7 +9,7 @@ app.logger.setLevel(INFO)
 
 app.logger.info("before add EasyLog")
 
-EasyLog(app, 
+EasyLog(app,
     fmt = FMT_ACCESS_LOG,
     afterlog = True,
     beforelog = True)

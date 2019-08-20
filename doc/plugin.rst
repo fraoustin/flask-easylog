@@ -1,0 +1,4 @@
+Plugin EasyLog
+==============
+
+todo

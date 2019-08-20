@@ -57,3 +57,11 @@ Usage
     if __name__ == "__main__":
         app.run(host="0.0.0.0", port=8080)
 
+Documentation
+-------------
+
+`Plugin EasyLog <https://github.com/fraoustin/flask-easylog/tree/master/doc/plugin.rst>`_
+
+`Api EasyLog <https://github.com/fraoustin/flask-easylog/tree/master/doc/api.rst>`_
+
+`Ui EasyLog <https://github.com/fraoustin/flask-easylog/tree/master/doc/ui.rst>`_
