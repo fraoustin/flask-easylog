@@ -80,7 +80,7 @@ def rm_log(endpoint):
 
     :rtype: dict
     """
-    del SpecificLevelLog['endpoint']
+    del SpecificLevelLog[endpoint]
     return {'endpoint': endpoint, 'level' : _levelToName[SpecificLevelLog[endpoint]]}
 
 
@@ -108,7 +108,7 @@ def set_log(endpoint):
     :rtype: None
     """
     data = json.loads(request.data.decode())
-    if endpoint != data['endpoint'] or 'level' not in SpecificLevelLog.keys():
+    if endpoint != data.get('endpoint','') or 'level' not in data.keys():
         raise Error(status=405, title='invalid INPUT', type='RG-001', detail='endpoint is not compatible with endpoint object')
     SpecificLevelLog[data['endpoint']] = _nameToLevel.get(data['level'], DEBUG) 
     return {'endpoint' : endpoint, 'level': _levelToName[SpecificLevelLog[endpoint]]}

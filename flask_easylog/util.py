@@ -10,6 +10,7 @@ util for flask_easylog
 """
 
 from logging import DEBUG
+from flask import current_app
 from flask.helpers import _endpoint_from_view_func
 from functools import partial, wraps
 

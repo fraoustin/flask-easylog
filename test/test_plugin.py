@@ -1,11 +1,13 @@
 import unittest
 from flask import Flask, request, json, current_app
 
-from flask_easylog import EasyLog
+from flask_easylog import EasyLog, SpecificLevelLog
 
 from util import DictHandler
 
 from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING
+
+levels = [DEBUG, INFO, WARNING, ERROR, CRITICAL]
 
 def hello():
     current_app.logger.critical("critical from hello")
@@ -15,9 +17,9 @@ def hello():
     current_app.logger.debug("debug from hello")
     return "Hello World!"
 
-class TestApi(unittest.TestCase):
+class TestPlugin(unittest.TestCase):
     """
-        Class for Unitaire Test for flask_easylog.api
+        Class for Unitaire Test for flask_easylog.plugin
     """
     def setUp(self):
         self.app = Flask(__name__)
@@ -36,26 +38,24 @@ class TestApi(unittest.TestCase):
 
     def test_level(self):
         with self.app.test_client() as c:
-            self.app.logger.setLevel(DEBUG)
-            c.get('/hello')
-            self.assertEqual(len(self.hdl), 5)
-            self.hdl.clear()
-            self.app.logger.setLevel(INFO)
-            c.get('/hello')
-            self.assertEqual(len(self.hdl), 4)
-            self.hdl.clear()
-            self.app.logger.setLevel(WARNING)
-            c.get('/hello')
-            self.assertEqual(len(self.hdl), 3)
-            self.hdl.clear()
-            self.app.logger.setLevel(ERROR)
-            c.get('/hello')
-            self.assertEqual(len(self.hdl), 2)
-            self.hdl.clear()
-            self.app.logger.setLevel(CRITICAL)
-            c.get('/hello')
-            self.assertEqual(len(self.hdl), 1)
-            
+            for level in levels:
+                if 'hello' in SpecificLevelLog:
+                    del SpecificLevelLog['hello']
+                self.app.logger.setLevel(level)
+                c.get('/hello')
+                self.assertEqual(len(self.hdl), len(levels)-levels.index(level))
+                self.hdl.clear()
+    
+    def test_level_specific(self):
+        with self.app.test_client() as c:
+            for levellogger in levels:
+                self.app.logger.setLevel(levellogger)
+                for levelspec in levels:
+                    SpecificLevelLog['hello']=levelspec
+                    c.get('/hello')
+                    self.assertEqual(len(self.hdl), len(levels)-levels.index(levelspec))
+                    self.hdl.clear()
+
 
 if __name__ == '__main__':
     unittest.main()
