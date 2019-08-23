@@ -138,7 +138,7 @@ class RequestFilter(KeyFilter):
         self._load_keys(record, keys_request())
         return True
 
-def key_timestamp():
+def keys_timestamp():
     """
     Return a dict with a key: 
     
@@ -173,7 +173,7 @@ class RequestTimeStampFilter(KeyFilter):
     """
 
     def filter(self, record):
-        self._load_keys(record, key_timestamp())
+        self._load_keys(record, keys_timestamp())
         return True
 
 class EasyLog(object):
@@ -262,7 +262,7 @@ class EasyLog(object):
         def _log(level, msg, args, **kwargs):
             new_args = keys_request()
             new_args.update(key_request_id())
-            new_args.update(key_timestamp())
+            new_args.update(keys_timestamp())
             msg = msg % new_args
             Logger._log(self.app.logger, level, msg, args, **kwargs)
         return _log

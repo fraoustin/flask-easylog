@@ -1,13 +1,17 @@
 import unittest
 from flask import Flask, request, json, current_app
-
+from flask.logging import default_handler
 from flask_easylog import EasyLog, SpecificLevelLog
+from flask_easylog.plugin import key_request_id, keys_request, keys_timestamp
 
-from util import DictHandler
+from util import ListHandler
 
-from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING
+from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING, Formatter
 
 levels = [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+
+fmts = ['requestId']
+
 
 def hello():
     current_app.logger.critical("critical from hello")
@@ -25,7 +29,7 @@ class TestPlugin(unittest.TestCase):
         self.app = Flask(__name__)
         for hdl in self.app.logger.handlers:
             self.app.logger.removeHandler(hdl)
-        self.hdl = DictHandler()
+        self.hdl = ListHandler()
         self.app.logger.addHandler(self.hdl)
         self.app.testing = True
         self.app.add_url_rule('/hello', 'hello', hello, methods=['GET'])
@@ -56,6 +60,19 @@ class TestPlugin(unittest.TestCase):
                     self.assertEqual(len(self.hdl), len(levels)-levels.index(levelspec))
                     self.hdl.clear()
 
+    def test_formatter(self):
+        with self.app.test_client() as c:
+            self.app.logger.setLevel(CRITICAL)
+            if 'hello' in SpecificLevelLog:
+                del SpecificLevelLog['hello']
+            fmts = [fmt for fmt in key_request_id().keys()]
+            fmts = fmts + [fmt for fmt in keys_request().keys()]
+            fmts = fmts + [fmt for fmt in keys_timestamp().keys()]
+            for fmt in fmts:
+                self.hdl.setFormatter(Formatter("%("+fmt+")s"))
+                c.get('/hello')
+                self.assertEqual(len(self.hdl), 1)
+                self.hdl.clear()
 
 if __name__ == '__main__':
     unittest.main()

@@ -11,7 +11,7 @@ test for flask_easylog
 
 from logging import Handler, NOTSET
 
-class DictHandler(Handler):
+class ListHandler(Handler):
     def __init__(self, level=NOTSET):
         Handler.__init__(self, level)
         self.data=[]
@@ -20,7 +20,9 @@ class DictHandler(Handler):
         self.data=[]
 
     def emit(self, record):
-        self.data.append(record)
+        self.data.append({"level": record.levelno, 
+            "msg": self.format(record),
+            "record": record})
     
     def __len__(self):
         return len(self.data)

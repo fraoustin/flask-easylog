@@ -3,8 +3,7 @@ import json
 from flask import Flask, request, json, current_app
 
 from flask_easylog import Api, SpecificLevelLog
-
-from util import DictHandler
+from util import ListHandler
 
 from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING, _levelToName
 
@@ -24,7 +23,7 @@ class TestApi(unittest.TestCase):
         self.app = Flask(__name__)
         for hdl in self.app.logger.handlers:
             self.app.logger.removeHandler(hdl)
-        self.hdl = DictHandler()
+        self.hdl = ListHandler()
         self.app.logger.addHandler(self.hdl)
         self.app.testing = True
         self.app.add_url_rule('/hello', 'hello', hello, methods=['GET'])
