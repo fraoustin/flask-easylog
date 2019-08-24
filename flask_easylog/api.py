@@ -9,10 +9,10 @@ api for flask_easylog: change specificLevelLog by endpoint
 
 """
 import json
-from logging import _levelToName, _nameToLevel, DEBUG 
+from logging import DEBUG 
 from flask import Blueprint, current_app, request
 from .util import SpecificLevelLog
-
+from .util import _levelToName, _nameToLevel
 
 def to_json(fn):
     def _request_fn(*args, **kw):

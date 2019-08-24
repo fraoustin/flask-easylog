@@ -14,6 +14,16 @@ from flask import current_app
 from flask.helpers import _endpoint_from_view_func
 from functools import partial, wraps
 
+try:
+    from logging import _levelToName, _nameToLevel
+except:
+    from logging import _levelNames
+    _levelToName = { level : _levelNames[level] for level in _levelNames if isinstance(level, int)  }
+    _nameToLevel = { name : _levelNames[name] for name in _levelNames if not isinstance(name, int)  }
+
+
+
+
 class Singleton(type):
     _instances = {}
     

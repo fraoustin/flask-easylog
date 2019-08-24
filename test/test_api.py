@@ -3,9 +3,10 @@ import json
 from flask import Flask, request, json, current_app
 
 from flask_easylog import Api, SpecificLevelLog
+from flask_easylog.util import _levelToName
 from util import ListHandler
 
-from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING, _levelToName
+from logging import Logger, DEBUG, INFO, CRITICAL, ERROR, WARNING
 
 def hello():
     current_app.logger.critical("critical from hello")
