@@ -7,7 +7,7 @@
 import os
 from setuptools import setup, find_packages
 
-__version_info__ = (0, 1, 0)
+__version_info__ = (1, 0, 0)
 VERSION = '.'.join([str(val) for val in __version_info__])
 NAME = "flask-easylog"
 DESC = "flask_easylog extension for flask application"
