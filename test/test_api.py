@@ -77,11 +77,16 @@ class TestApi(unittest.TestCase):
                 self.assertEqual(rv.status_code, 200)
                 self.assertEqual(SpecificLevelLog['hello'], level)
 
-    def test_set_log_error(self):
+    def test_set_log_error_endpoint(self):
         with self.app.test_client() as c:
             rv = c.put('/api/log/hello', data=json.dumps({'endpoint':'notHello', 'level':'DEBUG'}), headers={'content-type': 'application/json'})
             self.assertEqual(rv.status_code, 405)
-    
+ 
+    def test_set_log_error_data(self):
+        with self.app.test_client() as c:
+            rv = c.put('/api/log/hello', data=json.dumps(['endpoint', 'level']), headers={'content-type': 'application/json'})
+            self.assertEqual(rv.status_code, 405)
+ 
     def test_rm_log(self):
         with self.app.test_client() as c:
             self.app.logger.setLevel(DEBUG)
@@ -91,7 +96,19 @@ class TestApi(unittest.TestCase):
                 rv = c.delete('/api/log/hello')
                 self.assertEqual(rv.status_code, 200)
                 self.assertEqual(SpecificLevelLog['hello'], DEBUG)
-
+    
+    def test_rm_log_double(self):
+        with self.app.test_client() as c:
+            self.app.logger.setLevel(DEBUG)
+            for level in _levelToName.keys():
+                rv = c.put('/api/log/hello', data=json.dumps({'endpoint':'hello', 'level':_levelToName[level]}), headers={'content-type': 'application/json'})
+                self.assertEqual(SpecificLevelLog['hello'], level)
+                rv = c.delete('/api/log/hello')
+                self.assertEqual(rv.status_code, 200)
+                self.assertEqual(SpecificLevelLog['hello'], DEBUG)
+                rv = c.delete('/api/log/hello')
+                self.assertEqual(rv.status_code, 200)
+                self.assertEqual(SpecificLevelLog['hello'], DEBUG)
    
 if __name__ == '__main__':
     unittest.main()

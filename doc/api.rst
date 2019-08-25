@@ -29,9 +29,9 @@ swagger configuration
     ---
     swagger: "2.0"
     info:
-    description: "API for management logger by Flask"
+    description: "API for management log by Flask"
     version: "1.0.0"
-    title: "Management Logger for Flask"
+    title: "Management Log for Flask"
     contact:
     name: "fraoustin@gmail.com"
     license:

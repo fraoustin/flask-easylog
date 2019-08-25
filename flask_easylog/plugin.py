@@ -291,7 +291,7 @@ class EasyLog(object):
     def stop_timestamp(self):
         def stop_timestamp(response):
             request._timestamp_stop = time()
-            request._response['Content-Length'] = response.headers["Content-Length"]
+            request._response['Content-Length'] = response.headers.get("Content-Length",'')
             request._response['status_code'] = response.status_code
             request._response['status'] = response.status
             if len(getLogger('access.log').handlers):
