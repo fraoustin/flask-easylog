@@ -186,11 +186,11 @@ class EasyLog(object):
     - fmt: format de log for your flask application
     - werkzeug: enabled or disabled the werkzeug logger (default False)
     - afterlog: enabled or disabled sending a message at the end of response (default False)
-    - aftermsg: if accesslog, format of message sending (default 'END')
-    - afterlevel: if accesslog, level of message sending (default INFO)
+    - aftermsg: if afterlog, format of message sending (default 'END')
+    - afterlevel: if afterlog, level of message sending (default INFO)
     - beforelog: enabled or disabled sending a message at the end of response (default False)
-    - beforemsg: if accesslog, format of message sending (default 'START')
-    - beforelevel: if accesslog, level of message sending (default INFO)
+    - beforemsg: if beforelog, format of message sending (default 'START')
+    - beforelevel: if beforelog, level of message sending (default INFO)
     - fmtaccesslog: format for logger "access.log" (default FMT_ACCESS_LOG)
     - enabledaccesslog: add FileHandler if "FLASK_ENV" is production and path value not null (default None)
     """
