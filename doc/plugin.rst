@@ -48,7 +48,7 @@ Parameter of **EasyLog**
     
 You can add keyword in message log:
 
--requestId
+- requestId
 - secretKey from app config
 - serverName from app config
 - serverPort from app config
